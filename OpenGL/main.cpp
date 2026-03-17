@@ -244,12 +244,20 @@ int main() {
 		//lightPos = glm::vec3((float)sin(glfwGetTime()) * 3, (float)sin(glfwGetTime()) * 3, (float)cos(glfwGetTime()) * 3);
 
 		ourShader.use();
-		ourShader.setVec3("light.position", lightPos);
+		ourShader.setVec3("light.direction", camera.Front);
 		ourShader.setVec3("viewPos", camera.Position);
 
 		ourShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
 		ourShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
 		ourShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+
+		ourShader.setFloat("light.constant", 1.0f);
+		ourShader.setFloat("light.linear", 0.09f);
+		ourShader.setFloat("light.quadratic", 0.032f);
+
+		ourShader.setVec3("light.position", camera.Position);
+		ourShader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+		ourShader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
 
 		ourShader.setFloat("material.shininess", 64.0f);
 
@@ -280,7 +288,18 @@ int main() {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		for(unsigned int i = 0; i < 10; i++)
+		{
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 20.0f * i;
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			ourShader.setMat4("model", model);
+		 
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 
 		lampShader.use();
 		lampShader.setMat4("projection", projection);
